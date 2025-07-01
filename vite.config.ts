@@ -16,13 +16,9 @@ export default defineConfig({
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
           'lucide': ['lucide-react'],
-          'date-fns': ['date-fns'],
-          'react-window': ['react-window']
+          'date-fns': ['date-fns']
         }
       }
     }
-  },
-  optimizeDeps: {
-    include: ['react-window', '@tanstack/react-virtual']
   }
 })
