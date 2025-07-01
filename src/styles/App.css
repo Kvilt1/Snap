@@ -260,6 +260,32 @@
   white-space: pre-wrap;
 }
 
+/* Back button styles */
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-button:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+  background-color: rgba(255, 252, 0, 0.05);
+}
+
+.back-button:active {
+  transform: translateY(0);
+}
+
 /* Export button styles */
 .export-button {
   display: flex;

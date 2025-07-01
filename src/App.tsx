@@ -2,15 +2,17 @@ import { useState } from 'react'
 import ConversationList from './components/ConversationList'
 import ChatWindow from './components/ChatWindow'
 import ThrowbackMachine from './components/ThrowbackMachine'
+import Dashboard from './components/Dashboard'
 import { ChatHistory, FriendsData, Account, UsernameMappings } from './types/snapchat'
 import { useDebouncedValue } from './hooks/useDebouncedValue'
-import { Download } from 'lucide-react'
+import { Download, ArrowLeft } from 'lucide-react'
 import './styles/App.css'
 
 function App() {
   const [chatHistory, setChatHistory] = useState<ChatHistory | null>(null)
   const [friendsData, setFriendsData] = useState<FriendsData | null>(null)
   const [accountData, setAccountData] = useState<Account | null>(null)
+  const [currentView, setCurrentView] = useState<'dashboard' | 'chat'>('dashboard')
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null)
   const [throwbackDate, setThrowbackDate] = useState<Date | null>(null)
   const [globalSearchQuery, setGlobalSearchQuery] = useState('')
@@ -225,6 +227,27 @@ function App() {
     await processJsonFiles(files)
   }
 
+  const handleNavigateToChat = () => {
+    setCurrentView('chat')
+  }
+
+  const handleNavigateToDashboard = () => {
+    setCurrentView('dashboard')
+    setSelectedConversation(null)
+  }
+
+  const handleReuploadFiles = () => {
+    // Clear all data to return to upload screen
+    setChatHistory(null)
+    setFriendsData(null)
+    setAccountData(null)
+    setSelectedConversation(null)
+    setThrowbackDate(null)
+    setGlobalSearchQuery('')
+    setLoadingProgress('')
+    setCurrentView('dashboard')
+  }
+
   const isDataLoaded = chatHistory && friendsData && accountData
 
   if (!isDataLoaded) {
@@ -265,10 +288,29 @@ function App() {
     )
   }
 
+  if (currentView === 'dashboard') {
+    return (
+      <div className="app">
+        <Dashboard 
+          onNavigateToChat={handleNavigateToChat} 
+          onReuploadFiles={handleReuploadFiles}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="app">
       <div className="app-header">
         <div className="header-content">
+          <button
+            onClick={handleNavigateToDashboard}
+            className="back-button"
+            title="Back to Dashboard"
+          >
+            <ArrowLeft size={16} />
+            <span>Dashboard</span>
+          </button>
           <h1>Snapchat Archive Viewer</h1>
           <div className="header-actions">
             <ThrowbackMachine
