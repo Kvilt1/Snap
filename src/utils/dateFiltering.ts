@@ -118,15 +118,53 @@ export function ensureMessagesSorted(messages: ChatMessage[]): ChatMessage[] {
 
 // Cache for parsed dates to avoid repeated parsing
 const dateCache = new Map<string, Date>();
+const MAX_CACHE_SIZE = 10000; // Limit cache size to prevent memory leaks
+let cacheCleanupTimer: number | null = null;
 
 export function getCachedDate(dateString: string): Date {
   if (!dateCache.has(dateString)) {
+    // If cache is getting too large, clear oldest entries
+    if (dateCache.size >= MAX_CACHE_SIZE) {
+      const keysToDelete = Array.from(dateCache.keys()).slice(0, Math.floor(MAX_CACHE_SIZE / 2));
+      keysToDelete.forEach(key => dateCache.delete(key));
+    }
+    
     dateCache.set(dateString, parseISO(dateString.replace(' UTC', 'Z')));
   }
+  
+  // Schedule cache cleanup for memory management
+  scheduleCacheCleanup();
+  
   return dateCache.get(dateString)!;
+}
+
+// Schedule periodic cache cleanup to prevent memory leaks
+function scheduleCacheCleanup(): void {
+  if (cacheCleanupTimer) return;
+  
+  cacheCleanupTimer = setTimeout(() => {
+    // Clear cache if it's been idle for 5 minutes
+    if (dateCache.size > 0) {
+      console.log(`Clearing date cache (${dateCache.size} entries) for memory management`);
+      dateCache.clear();
+    }
+    cacheCleanupTimer = null;
+  }, 5 * 60 * 1000); // 5 minutes
 }
 
 // Clear date cache when memory is needed
 export function clearDateCache(): void {
   dateCache.clear();
+  if (cacheCleanupTimer) {
+    clearTimeout(cacheCleanupTimer);
+    cacheCleanupTimer = null;
+  }
+}
+
+// Get cache statistics for monitoring
+export function getDateCacheStats(): { size: number; maxSize: number } {
+  return {
+    size: dateCache.size,
+    maxSize: MAX_CACHE_SIZE
+  };
 }

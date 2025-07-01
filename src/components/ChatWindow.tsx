@@ -1,10 +1,11 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { ChatMessage, FriendsData, UsernameMappings } from '../types/snapchat'
 import { format, parseISO } from 'date-fns'
-import { Search, Phone, PhoneOff, Video, VideoOff, Trash2, Users } from 'lucide-react'
+import { Search, Phone, PhoneOff, Video, VideoOff, Trash2, Users, Mic } from 'lucide-react'
 import TimelineSlider from './TimelineSlider'
 import UsernameMappingModal from './UsernameMappingModal'
 import { getDisplayName, getUnknownUsersInConversation, hasUnknownUsers } from '../utils/userMappings'
+import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import '../styles/ChatWindow.css'
 
 interface ChatWindowProps {
@@ -25,6 +26,7 @@ function ChatWindow({
   onUpdateMappings
 }: ChatWindowProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebouncedValue(searchQuery, 300);
   const [showSearch, setShowSearch] = useState(false);
   const [showMappingModal, setShowMappingModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -119,10 +121,10 @@ function ChatWindow({
       });
     }
 
-    // Filter by search query
-    if (searchQuery) {
+    // Filter by search query (debounced for performance)
+    if (debouncedSearchQuery) {
       messages = messages.filter(msg => 
-        msg.Content?.toLowerCase().includes(searchQuery.toLowerCase())
+        msg.Content?.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
       );
     }
 
@@ -134,7 +136,7 @@ function ChatWindow({
     });
 
     return messages;
-  }, [conversation, throwbackDate, searchQuery]);
+  }, [conversation, throwbackDate, debouncedSearchQuery]);
 
   // Group messages by date
   const groupedMessages = useMemo(() => {
@@ -297,6 +299,44 @@ function ChatWindow({
                     <span className="call-time">
                       {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
                     </span>
+                  </div>
+                );
+              }
+              
+              // Handle voice notes (NOTE media type)
+              if (mediaType === 'NOTE') {
+                return (
+                  <div
+                    key={msg['Created(microseconds)']}
+                    id={`msg-${msg['Created(microseconds)']}`}
+                    className={`message voice-note ${isSent ? 'sent' : 'received'} ${isGroupChat ? 'group-chat' : ''} ${showSenderName ? 'show-sender' : 'grouped'} ${isFirstInGroup ? 'first-in-group' : ''} ${isLastInGroup ? 'last-in-group' : ''}`}
+                  >
+                    {showSenderName && (
+                      <div 
+                        className="sender-name"
+                        style={{
+                          color: isSent ? '#ff4757' : (participantColor || '#3498db')
+                        }}
+                      >
+                        {isSent ? 'Me' : (isGroupChat ? getDisplayName(msg.From, friendsData, usernameMappings) : displayName)}
+                      </div>
+                    )}
+                    <div 
+                      className="message-container"
+                      style={{
+                        color: isSent ? '#ff4757' : (participantColor || '#3498db')
+                      }}
+                    >
+                      <div className="message-content">
+                        <div className="voice-note-bubble">
+                          <Mic size={14} className="voice-note-icon" />
+                          <span className="voice-note-text">Voice Note</span>
+                        </div>
+                      </div>
+                      <div className="message-timestamp">
+                        {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'HH.mm')}
+                      </div>
+                    </div>
                   </div>
                 );
               }

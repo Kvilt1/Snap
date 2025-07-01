@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { ChatMessage } from '../types/snapchat'
 import { format, parseISO } from 'date-fns'
 import '../styles/TimelineSlider.css'
@@ -11,6 +11,18 @@ interface TimelineSliderProps {
 function TimelineSlider({ messages, onDateChange }: TimelineSliderProps) {
   const [sliderValue, setSliderValue] = useState(100);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  // Check screen size for responsive date formatting
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsSmallScreen(window.innerWidth < 768);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   const { minDate, maxDate, dateAtPosition } = useMemo(() => {
     if (messages.length === 0) return { minDate: new Date(), maxDate: new Date(), dateAtPosition: new Date() };
@@ -41,14 +53,30 @@ function TimelineSlider({ messages, onDateChange }: TimelineSliderProps) {
     setShowDatePicker(false);
   };
 
+  // Format dates responsively based on screen size
+  const formatDate = (date: Date) => {
+    if (isSmallScreen) {
+      return format(date, 'M/d/yy'); // Shorter format for small screens
+    }
+    return format(date, 'MMM d, yyyy'); // Full format for larger screens
+  };
+
   return (
     <div className="timeline-slider">
       <div className="timeline-info">
-        <span className="timeline-date">{format(minDate, 'MMM d, yyyy')}</span>
-        <span className="timeline-current" onClick={() => setShowDatePicker(!showDatePicker)}>
-          {format(dateAtPosition, 'MMM d, yyyy')}
+        <span className="timeline-date" title={format(minDate, 'MMMM d, yyyy')}>
+          {formatDate(minDate)}
         </span>
-        <span className="timeline-date">{format(maxDate, 'MMM d, yyyy')}</span>
+        <span 
+          className="timeline-current" 
+          onClick={() => setShowDatePicker(!showDatePicker)}
+          title={format(dateAtPosition, 'MMMM d, yyyy')}
+        >
+          {formatDate(dateAtPosition)}
+        </span>
+        <span className="timeline-date" title={format(maxDate, 'MMMM d, yyyy')}>
+          {formatDate(maxDate)}
+        </span>
       </div>
       
       <input

@@ -105,6 +105,8 @@ function ConversationList({
               return '📞 Missed voice call';
             case 'STATUSCALLMISSEDVIDEO':
               return '📹 Missed video call';
+            case 'NOTE':
+              return '🎤 Voice Note';
             case 'MEDIA':
             case 'STATUS':
             case 'STICKER':

@@ -3,6 +3,7 @@ import ConversationList from './components/ConversationList'
 import ChatWindow from './components/ChatWindow'
 import ThrowbackMachine from './components/ThrowbackMachine'
 import { ChatHistory, FriendsData, Account, UsernameMappings } from './types/snapchat'
+import { useDebouncedValue } from './hooks/useDebouncedValue'
 import { Download } from 'lucide-react'
 import './styles/App.css'
 
@@ -13,6 +14,7 @@ function App() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null)
   const [throwbackDate, setThrowbackDate] = useState<Date | null>(null)
   const [globalSearchQuery, setGlobalSearchQuery] = useState('')
+  const debouncedGlobalSearchQuery = useDebouncedValue(globalSearchQuery, 300)
   const [loadingProgress, setLoadingProgress] = useState<string>('')
   const [usernameMappings, setUsernameMappings] = useState<UsernameMappings>(() => {
     // Load existing mappings from localStorage
@@ -69,26 +71,100 @@ function App() {
 
   // Process JSON files from folder
   const processJsonFiles = async (files: File[]) => {
+    // Check for large files and warn user
+    const largeFiles = files.filter(file => file.size > 100 * 1024 * 1024) // 100MB
+    const veryLargeFiles = files.filter(file => file.size > 500 * 1024 * 1024) // 500MB
+    
+    if (veryLargeFiles.length > 0) {
+      const fileNames = veryLargeFiles.map(f => `${f.name} (${Math.round(f.size / 1024 / 1024)}MB)`).join(', ')
+      if (!confirm(`⚠️ Very large files detected: ${fileNames}\n\nThese files may cause your browser to slow down or crash. Continue loading?`)) {
+        setLoadingProgress('Loading cancelled by user')
+        return
+      }
+    } else if (largeFiles.length > 0) {
+      const fileNames = largeFiles.map(f => `${f.name} (${Math.round(f.size / 1024 / 1024)}MB)`).join(', ')
+      setLoadingProgress(`⚠️ Loading large files: ${fileNames}\nThis may take a while...`)
+    }
+
     for (const file of files) {
       if (!file.name.endsWith('.json')) continue
       
       try {
-        const text = await file.text()
-        const data = JSON.parse(text)
+        setLoadingProgress(prev => prev + `\n📄 Processing ${file.name} (${Math.round(file.size / 1024 / 1024)}MB)...`)
         
-        // Identify file type by name or content
-        if (file.name.includes('chat_history')) {
-          setChatHistory(data)
-          setLoadingProgress(prev => prev + '\n✓ Loaded chat history')
-        } else if (file.name.includes('friends')) {
-          setFriendsData(data)
-          setLoadingProgress(prev => prev + '\n✓ Loaded friends')
-        } else if (file.name.includes('account') && !file.name.includes('history')) {
-          setAccountData(data)
-          setLoadingProgress(prev => prev + '\n✓ Loaded account')
+        // For large files (>10MB), use web worker for JSON parsing
+        if (file.size > 10 * 1024 * 1024) {
+          // Use web worker for large file processing
+          const worker = new Worker(new URL('./workers/jsonParser.worker.ts', import.meta.url), { type: 'module' })
+          
+          const processFile = () => new Promise((resolve, reject) => {
+            worker.onmessage = (event) => {
+              const { type, fileName, data, error, progress } = event.data
+              
+              if (type === 'progress') {
+                setLoadingProgress(prev => prev + `\n📊 ${fileName}: ${Math.round(progress * 100)}%`)
+              } else if (type === 'result') {
+                // Identify file type by name and set data
+                if (fileName.includes('chat_history')) {
+                  setChatHistory(data)
+                  setLoadingProgress(prev => prev + '\n✓ Loaded chat history')
+                } else if (fileName.includes('friends')) {
+                  setFriendsData(data)
+                  setLoadingProgress(prev => prev + '\n✓ Loaded friends')
+                } else if (fileName.includes('account') && !fileName.includes('history')) {
+                  setAccountData(data)
+                  setLoadingProgress(prev => prev + '\n✓ Loaded account')
+                }
+                worker.terminate()
+                resolve(data)
+              } else if (type === 'error') {
+                console.error(`Error parsing ${fileName}:`, error)
+                setLoadingProgress(prev => prev + `\n❌ Error loading ${fileName}`)
+                worker.terminate()
+                reject(new Error(error))
+              }
+            }
+            
+            worker.onerror = (error) => {
+              console.error(`Worker error for ${file.name}:`, error)
+              worker.terminate()
+              reject(error)
+            }
+            
+            // Read file content and send to worker
+            file.text().then(content => {
+              worker.postMessage({
+                type: 'parse',
+                fileName: file.name,
+                content: content
+              })
+            }).catch(reject)
+          })
+          
+          await processFile()
+        } else {
+          // For smaller files, process directly on main thread
+          setLoadingProgress(prev => prev + `\n📊 ${file.name}: 50%`)
+          const text = await file.text()
+          setLoadingProgress(prev => prev + `\n📊 ${file.name}: 75%`)
+          const data = JSON.parse(text)
+          setLoadingProgress(prev => prev + `\n📊 ${file.name}: 100%`)
+          
+          // Identify file type by name or content
+          if (file.name.includes('chat_history')) {
+            setChatHistory(data)
+            setLoadingProgress(prev => prev + '\n✓ Loaded chat history')
+          } else if (file.name.includes('friends')) {
+            setFriendsData(data)
+            setLoadingProgress(prev => prev + '\n✓ Loaded friends')
+          } else if (file.name.includes('account') && !file.name.includes('history')) {
+            setAccountData(data)
+            setLoadingProgress(prev => prev + '\n✓ Loaded account')
+          }
         }
       } catch (error) {
-        console.error(`Error parsing ${file.name}:`, error)
+        console.error(`Error processing ${file.name}:`, error)
+        setLoadingProgress(prev => prev + `\n❌ Error processing ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`)
       }
     }
   }
@@ -226,7 +302,7 @@ function App() {
           selectedConversation={selectedConversation}
           onSelectConversation={setSelectedConversation}
           throwbackDate={throwbackDate}
-          searchQuery={globalSearchQuery}
+          searchQuery={debouncedGlobalSearchQuery}
           usernameMappings={usernameMappings}
         />
         {selectedConversation && (

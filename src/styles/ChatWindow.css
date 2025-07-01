@@ -3,6 +3,8 @@
   display: flex;
   flex-direction: column;
   background-color: var(--bg-primary);
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .chat-header {
@@ -303,4 +305,69 @@
 /* Individual chat styling - show colors for both users */
 .message:not(.group-chat) .message-container {
   /* Keep borders and colors for individual chats too */
+}
+
+/* Voice Note Styling */
+.voice-note-bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  width: fit-content;
+  max-width: 140px;
+  transition: all 0.2s ease;
+}
+
+.voice-note-bubble:hover {
+  background-color: var(--bg-tertiary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.voice-note-icon {
+  color: inherit;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.voice-note-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: inherit;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* Voice note specific styling for sent vs received */
+.message.voice-note.sent .voice-note-bubble {
+  background-color: rgba(255, 71, 87, 0.1);
+  border-color: rgba(255, 71, 87, 0.3);
+}
+
+.message.voice-note.sent .voice-note-bubble:hover {
+  background-color: rgba(255, 71, 87, 0.15);
+}
+
+.message.voice-note.received .voice-note-bubble {
+  background-color: rgba(52, 152, 219, 0.1);
+  border-color: rgba(52, 152, 219, 0.3);
+}
+
+.message.voice-note.received .voice-note-bubble:hover {
+  background-color: rgba(52, 152, 219, 0.15);
+}
+
+/* Ensure voice note messages don't stretch full width */
+.message.voice-note .message-content {
+  width: fit-content;
+}
+
+.message.voice-note .message-bubble {
+  width: fit-content;
+  background: none;
+  padding: 0;
+  border: none;
 }

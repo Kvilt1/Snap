@@ -25,15 +25,13 @@ interface ErrorMessage {
   error: string;
 }
 
-// Parse JSON in chunks to prevent blocking
-async function parseJSON(content: string, fileName: string): Promise<any> {
+// Parse JSON content to prevent blocking main thread
+async function parseJSONContent(content: string, fileName: string): Promise<any> {
   try {
-    // For very large files, we could implement streaming JSON parsing
-    // For now, we'll use regular parsing with progress updates
     postMessage({
       type: 'progress',
       fileName,
-      progress: 0.5
+      progress: 0.2
     } as ProgressMessage);
     
     const data = JSON.parse(content);
@@ -41,8 +39,11 @@ async function parseJSON(content: string, fileName: string): Promise<any> {
     postMessage({
       type: 'progress',
       fileName,
-      progress: 1
+      progress: 0.8
     } as ProgressMessage);
+    
+    // Clear content reference to free memory immediately after parsing
+    content = '';
     
     return data;
   } catch (error) {
@@ -55,10 +56,10 @@ self.addEventListener('message', async (event: MessageEvent<ParseMessage>) => {
   
   if (type === 'parse') {
     try {
-      const data = await parseJSON(content, fileName);
+      const data = await parseJSONContent(content, fileName);
       
       // Post process data based on file type
-      if (fileName === 'chat_history.json') {
+      if (fileName.includes('chat_history')) {
         // Convert chat history to optimized format
         const optimizedData: ChatHistory = {};
         
@@ -81,6 +82,8 @@ self.addEventListener('message', async (event: MessageEvent<ParseMessage>) => {
           } as ProgressMessage);
         }
         
+        // Data will be garbage collected after this function ends
+        
         postMessage({
           type: 'result',
           fileName,
@@ -93,6 +96,8 @@ self.addEventListener('message', async (event: MessageEvent<ParseMessage>) => {
           fileName,
           data
         } as ResultMessage);
+        
+        // Data will be garbage collected after this function ends
       }
     } catch (error) {
       postMessage({
