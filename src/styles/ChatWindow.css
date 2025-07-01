@@ -1,0 +1,306 @@
+.chat-window {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+}
+
+.chat-header {
+  padding: 20px;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-header-info h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.message-count {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.participant-count {
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+.chat-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-toggle, .map-users-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.search-toggle:hover, .map-users-button:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.map-users-button {
+  color: var(--accent);
+}
+
+.map-users-button:hover {
+  background-color: rgba(255, 252, 0, 0.1);
+  color: var(--accent);
+}
+
+.unknown-count {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #ff4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.chat-search {
+  padding: 12px 20px;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.chat-search input {
+  width: 100%;
+  padding: 8px 16px;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.chat-search input:focus {
+  border-color: var(--accent);
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.date-divider {
+  text-align: center;
+  margin: 24px 0;
+  position: relative;
+}
+
+.date-divider span {
+  background-color: var(--bg-primary);
+  padding: 0 16px;
+  font-size: 13px;
+  color: var(--text-tertiary);
+  position: relative;
+  z-index: 1;
+}
+
+.date-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: var(--border);
+}
+
+.message {
+  display: block;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.message-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.message-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-timestamp {
+  color: var(--text-tertiary);
+  font-size: 11px;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+.message-bubble {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  max-width: none;
+}
+
+.message.sent .message-bubble {
+  background: none;
+}
+
+.message.received .message-bubble {
+  background: none;
+}
+
+.message-text {
+  word-wrap: break-word;
+  line-height: 1.4;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.message-media {
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* System messages (deleted chats, participant removed) */
+.system-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  margin: 16px auto;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  font-style: italic;
+  background-color: rgba(42, 42, 42, 0.3);
+  border-radius: 16px;
+  max-width: fit-content;
+}
+
+.system-message svg {
+  opacity: 0.6;
+}
+
+.system-time {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-left: 4px;
+}
+
+/* Call messages */
+.call-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  margin: 8px auto;
+  background-color: var(--bg-secondary);
+  border-radius: 20px;
+  max-width: fit-content;
+  border: 1px solid var(--border);
+}
+
+.call-message span {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.call-icon {
+  flex-shrink: 0;
+}
+
+.call-icon.ended {
+  color: var(--accent);
+}
+
+.call-icon.missed {
+  color: #ff4444;
+}
+
+.call-time {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-left: 4px;
+}
+
+/* Group chat specific styles */
+.sender-name {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  margin-top: 12px;
+}
+
+/* Message grouping styles */
+.message.grouped {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.message.grouped .sender-name {
+  display: none;
+  margin-top: 0;
+}
+
+.message.show-sender {
+  margin-top: 12px;
+  margin-bottom: 0px;
+}
+
+.message.show-sender .sender-name {
+  display: block;
+}
+
+.message.last-in-group {
+  margin-bottom: 8px;
+}
+
+/* Message container styling with continuous bar */
+.message-container {
+  position: relative;
+  padding-left: 12px;
+}
+
+/* Create the continuous colored bar on the left */
+.message-container::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: currentColor;
+}
+
+/* Extend the bar to connect with adjacent messages from same sender */
+.message:not(.first-in-group) .message-container::before {
+  top: -2px;
+}
+
+.message:not(.last-in-group) .message-container::before {
+  bottom: -2px;
+}
+
+/* Individual chat styling - show colors for both users */
+.message:not(.group-chat) .message-container {
+  /* Keep borders and colors for individual chats too */
+}
