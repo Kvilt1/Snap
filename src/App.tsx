@@ -18,6 +18,7 @@ function App() {
   const [globalSearchQuery, setGlobalSearchQuery] = useState('')
   const debouncedGlobalSearchQuery = useDebouncedValue(globalSearchQuery, 300)
   const [loadingProgress, setLoadingProgress] = useState<string>('')
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [usernameMappings, setUsernameMappings] = useState<UsernameMappings>(() => {
     // Load existing mappings from localStorage
     const saved = localStorage.getItem('snapchat-username-mappings')
@@ -248,6 +249,12 @@ function App() {
     setCurrentView('dashboard')
   }
 
+  const handleSelectConversation = (conversationId: string) => {
+    setSelectedConversation(conversationId)
+    // Close mobile menu when a conversation is selected
+    setMobileMenuOpen(false)
+  }
+
   const isDataLoaded = chatHistory && friendsData && accountData
 
   if (!isDataLoaded) {
@@ -342,10 +349,12 @@ function App() {
           chatHistory={chatHistory}
           friendsData={friendsData}
           selectedConversation={selectedConversation}
-          onSelectConversation={setSelectedConversation}
+          onSelectConversation={handleSelectConversation}
           throwbackDate={throwbackDate}
           searchQuery={debouncedGlobalSearchQuery}
           usernameMappings={usernameMappings}
+          mobileMenuOpen={mobileMenuOpen}
+          onCloseMobileMenu={() => setMobileMenuOpen(false)}
         />
         {selectedConversation && (
           <ChatWindow
@@ -355,6 +364,7 @@ function App() {
             throwbackDate={throwbackDate}
             usernameMappings={usernameMappings}
             onUpdateMappings={updateUsernameMappings}
+            onOpenMobileMenu={() => setMobileMenuOpen(true)}
           />
         )}
       </div>

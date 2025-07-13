@@ -1,11 +1,12 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { ChatMessage, FriendsData, UsernameMappings } from '../types/snapchat'
 import { format, parseISO } from 'date-fns'
-import { Search, Phone, PhoneOff, Video, VideoOff, Trash2, Users, Mic } from 'lucide-react'
+import { Search, Phone, PhoneOff, Video, VideoOff, Trash2, Users, Mic, Menu } from 'lucide-react'
 import TimelineSlider from './TimelineSlider'
 import UsernameMappingModal from './UsernameMappingModal'
 import { getDisplayName, getUnknownUsersInConversation, hasUnknownUsers } from '../utils/userMappings'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
+import { useSwipeGesture } from '../hooks/useSwipeGesture'
 import '../styles/ChatWindow.css'
 
 interface ChatWindowProps {
@@ -15,6 +16,7 @@ interface ChatWindowProps {
   throwbackDate: Date | null;
   usernameMappings: UsernameMappings;
   onUpdateMappings: (mappings: UsernameMappings, friendsToUpdate?: {[oldUsername: string]: string}) => void;
+  onOpenMobileMenu?: () => void;
 }
 
 function ChatWindow({
@@ -23,7 +25,8 @@ function ChatWindow({
   friendsData,
   throwbackDate,
   usernameMappings,
-  onUpdateMappings
+  onUpdateMappings,
+  onOpenMobileMenu
 }: ChatWindowProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebouncedValue(searchQuery, 300);
@@ -31,6 +34,15 @@ function ChatWindow({
   const [showMappingModal, setShowMappingModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatWindowRef = useRef<HTMLDivElement>(null);
+
+  // Add swipe gesture support for mobile
+  useSwipeGesture(chatWindowRef, {
+    onSwipeRight: () => {
+      if (onOpenMobileMenu && window.innerWidth <= 768) {
+        onOpenMobileMenu();
+      }
+    }
+  });
 
   // Determine if this is a group chat and get appropriate display name
   const { isGroupChat, displayName } = useMemo(() => {
@@ -172,18 +184,29 @@ function ChatWindow({
   };
 
   return (
-    <div className="chat-window">
+    <div className="chat-window" ref={chatWindowRef}>
       <div className="chat-header">
         <div className="chat-header-info">
-          <h3>{displayName}</h3>
-          <span className="message-count">
-            {filteredMessages.length} messages
-            {isGroupChat && (
-              <span className="participant-count">
-                • {new Set(conversation.map(msg => msg.From)).size} participants
-              </span>
-            )}
-          </span>
+          {onOpenMobileMenu && (
+            <button
+              className="mobile-menu-button"
+              onClick={onOpenMobileMenu}
+              aria-label="Open conversation list"
+            >
+              <Menu size={24} />
+            </button>
+          )}
+          <div className="header-text">
+            <h3>{displayName}</h3>
+            <span className="message-count">
+              {filteredMessages.length} messages
+              {isGroupChat && (
+                <span className="participant-count">
+                  • {new Set(conversation.map(msg => msg.From)).size} participants
+                </span>
+              )}
+            </span>
+          </div>
         </div>
         <div className="chat-actions">
           {hasUnknownUsersInConversation && (
