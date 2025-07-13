@@ -9,6 +9,8 @@
   --border: #333333;
   --message-sent: #2a2a2a;
   --message-received: #1a1a1a;
+  --safe-area-inset-top: env(safe-area-inset-top);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom);
 }
 
 * {
@@ -27,10 +29,16 @@ body {
   color: var(--text-primary);
   height: 100vh;
   overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 #root {
   height: 100%;
+  overflow: hidden;
+  position: relative;
 }
 
 /* Scrollbar styles */
@@ -50,4 +58,68 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--border);
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  /* Enable momentum scrolling */
+  .conversations,
+  .chat-messages,
+  .modal-body {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Prevent pull-to-refresh on Chrome */
+  body {
+    overscroll-behavior-y: contain;
+  }
+
+  /* Safe area padding for notched devices */
+  .app-header {
+    padding-top: calc(12px + var(--safe-area-inset-top));
+  }
+
+  .conversation-list-header,
+  .chat-header {
+    padding-top: calc(16px + var(--safe-area-inset-top));
+  }
+
+  .back-button,
+  .export-button {
+    bottom: calc(20px + var(--safe-area-inset-bottom));
+  }
+
+  .export-button {
+    bottom: calc(80px + var(--safe-area-inset-bottom));
+  }
+}
+
+/* Text selection enabled for messages */
+.message-text,
+.message-bubble {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Loading animations */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.loading {
+  animation: pulse 1.5s ease-in-out infinite;
 }

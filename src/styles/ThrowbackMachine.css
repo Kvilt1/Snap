@@ -98,3 +98,96 @@
   border-color: var(--accent);
   color: var(--text-primary);
 }
+
+.throwback-dropdown button:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .throwback-toggle {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+  }
+
+  .throwback-dropdown {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .throwback-dropdown h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .throwback-dropdown p {
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .preset-buttons {
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .throwback-dropdown button {
+    padding: 10px 14px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+
+  .clear-button {
+    width: 100%;
+    justify-content: center;
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .throwback-dropdown {
+    padding: 16px;
+  }
+
+  .throwback-dropdown h3 {
+    font-size: 16px;
+  }
+
+  .throwback-dropdown p {
+    font-size: 12px;
+  }
+
+  .throwback-dropdown button {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+  .throwback-toggle,
+  .throwback-dropdown button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .throwback-toggle:active {
+    transform: scale(0.95);
+  }
+
+  .throwback-dropdown button:active {
+    background-color: var(--bg-tertiary);
+    transition: none;
+  }
+}

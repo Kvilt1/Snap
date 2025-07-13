@@ -12,6 +12,8 @@ interface ConversationListProps {
   throwbackDate: Date | null;
   searchQuery: string;
   usernameMappings: UsernameMappings;
+  mobileMenuOpen?: boolean;
+  onCloseMobileMenu?: () => void;
 }
 
 function ConversationList({
@@ -21,7 +23,9 @@ function ConversationList({
   onSelectConversation,
   throwbackDate,
   searchQuery,
-  usernameMappings
+  usernameMappings,
+  mobileMenuOpen = false,
+  onCloseMobileMenu
 }: ConversationListProps) {
   // Create a map of usernames to display names
   const displayNameMap = useMemo(() => {
@@ -150,10 +154,17 @@ function ConversationList({
   }, [chatHistory, displayNameMap, throwbackDate, searchQuery]);
 
   return (
-    <div className="conversation-list">
+    <div className={`conversation-list ${mobileMenuOpen ? 'mobile-open' : ''}`}>
       <div className="conversation-list-header">
         <h2>Conversations</h2>
-        <span className="conversation-count">{conversations.length}</span>
+        <div className="conversation-count">{conversations.length}</div>
+        {onCloseMobileMenu && (
+          <button
+            className="mobile-close-button"
+            onClick={onCloseMobileMenu}
+            aria-label="Close conversation list"
+          />
+        )}
       </div>
       <div className="conversations">
         {conversations.map(conv => (

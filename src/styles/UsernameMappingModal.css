@@ -297,3 +297,181 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.modal-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 0;
+  }
+
+  .modal-content {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+
+  .modal-header {
+    padding: 16px;
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-secondary);
+    z-index: 10;
+  }
+
+  .modal-header h2 {
+    font-size: 20px;
+  }
+
+  .close-button {
+    top: 16px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .modal-body {
+    padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .instructions {
+    font-size: 13px;
+    margin-bottom: 16px;
+    padding: 12px;
+  }
+
+  .mappings-grid {
+    gap: 12px;
+  }
+
+  .mapping-row {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background-color: var(--bg-tertiary);
+    border-radius: 8px;
+  }
+
+  .username-label {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+
+  .username {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .arrow {
+    display: none;
+  }
+
+  .mapping-input {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .mapping-input input,
+  .mapping-input select {
+    width: 100%;
+    font-size: 16px; /* Prevent zoom on iOS */
+    padding: 10px 12px;
+  }
+
+  .mapping-input input::placeholder {
+    font-size: 14px;
+  }
+
+  .display-name-select {
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+
+  .friend-option {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .mapped-indicator {
+    font-size: 10px;
+    padding: 2px 6px;
+    margin-left: 4px;
+  }
+
+  .modal-footer {
+    padding: 16px;
+    position: sticky;
+    bottom: 0;
+    background-color: var(--bg-secondary);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .modal-footer p {
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .modal-actions {
+    gap: 8px;
+  }
+
+  .modal-actions button {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-header {
+    padding: 12px;
+  }
+
+  .modal-body {
+    padding: 12px;
+  }
+
+  .instructions {
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  .mapping-row {
+    padding: 10px;
+  }
+
+  .username {
+    font-size: 13px;
+  }
+
+  .modal-footer {
+    padding: 12px;
+  }
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+  .mapping-input input,
+  .mapping-input select,
+  .modal-actions button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .close-button:active {
+    transform: scale(0.9);
+  }
+}

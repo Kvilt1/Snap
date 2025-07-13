@@ -111,3 +111,158 @@
   font-size: 12px;
   color: var(--text-tertiary);
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .conversation-list {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-out;
+  }
+
+  .conversation-list.mobile-open {
+    transform: translateX(0);
+  }
+
+  .conversation-list-header {
+    padding: 16px;
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-secondary);
+    z-index: 10;
+  }
+
+  .conversation-list-header h2 {
+    font-size: 18px;
+  }
+
+  .conversation-count {
+    font-size: 12px;
+    padding: 3px 10px;
+  }
+
+  .conversation-item {
+    padding: 14px 16px;
+    border-left: none !important;
+    padding-left: 16px !important;
+  }
+
+  .conversation-item.selected {
+    background-color: rgba(255, 252, 0, 0.1);
+  }
+
+  .conversation-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .conversation-info {
+    margin-left: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .conversation-name {
+    font-size: 16px;
+  }
+
+  .group-indicator {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .conversation-preview {
+    font-size: 14px;
+  }
+
+  .conversation-date {
+    font-size: 11px;
+  }
+
+  /* Add close button for mobile */
+  .mobile-close-button {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    margin: -8px;
+    font-size: 28px;
+    line-height: 1;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+
+  .mobile-close-button::before {
+    content: '×';
+  }
+
+  .mobile-close-button:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+  }
+
+  /* Remove the old pseudo-element */
+  .conversation-list-header::after {
+    display: none;
+  }
+}
+
+/* Hide mobile close button on desktop */
+@media (min-width: 769px) {
+  .mobile-close-button {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .conversation-list-header {
+    padding: 12px;
+  }
+
+  .conversation-item {
+    padding: 12px;
+  }
+
+  .conversation-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .conversation-name {
+    font-size: 15px;
+  }
+
+  .conversation-preview {
+    font-size: 13px;
+  }
+}
+
+/* Touch interaction improvements */
+@media (hover: none) and (pointer: coarse) {
+  .conversation-item {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: pan-y;
+  }
+
+  .conversation-item:active {
+    background-color: var(--bg-tertiary);
+    transition: none;
+  }
+}
