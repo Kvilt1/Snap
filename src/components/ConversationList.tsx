@@ -9,7 +9,6 @@ interface ConversationListProps {
   friendsData: FriendsData;
   selectedConversation: string | null;
   onSelectConversation: (id: string) => void;
-  throwbackDate: Date | null;
   searchQuery: string;
   usernameMappings: UsernameMappings;
 }
@@ -19,7 +18,6 @@ function ConversationList({
   friendsData,
   selectedConversation,
   onSelectConversation,
-  throwbackDate,
   searchQuery,
   usernameMappings
 }: ConversationListProps) {
@@ -36,14 +34,6 @@ function ConversationList({
   const conversations = useMemo(() => {
     return Object.entries(chatHistory)
       .filter(([conversationId, messages]) => {
-        // Filter by throwback date if set
-        if (throwbackDate) {
-          const hasMessagesBeforeDate = messages.some(msg => {
-            const msgDate = parseISO(msg.Created.replace(' UTC', 'Z'));
-            return msgDate <= throwbackDate;
-          });
-          if (!hasMessagesBeforeDate) return false;
-        }
 
         // Filter by search query
         if (searchQuery) {
@@ -66,11 +56,6 @@ function ConversationList({
           if (msg["Media Type"] === 'TEXT' && (!msg.Content || !msg.Content.trim())) return false;
           return true;
         });
-        
-        // Then filter by throwback date
-        if (throwbackDate) {
-          filteredMessages = filteredMessages.filter(msg => parseISO(msg.Created.replace(' UTC', 'Z')) <= throwbackDate);
-        }
 
         // Sort messages chronologically to get the actual latest message
         filteredMessages.sort((a, b) => {
@@ -147,7 +132,7 @@ function ConversationList({
         if (!a.lastMessageDate || !b.lastMessageDate) return 0;
         return b.lastMessageDate.getTime() - a.lastMessageDate.getTime();
       });
-  }, [chatHistory, displayNameMap, throwbackDate, searchQuery]);
+  }, [chatHistory, displayNameMap, searchQuery]);
 
   return (
     <div className="conversation-list">

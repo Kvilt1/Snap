@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { ChatMessage, FriendsData, UsernameMappings } from '../types/snapchat'
 import { format, parseISO } from 'date-fns'
-import { Search, Phone, PhoneOff, Video, VideoOff, Trash2, Users, Mic } from 'lucide-react'
+import { Search, Phone, PhoneOff, Video, VideoOff, Trash2, Users, Mic, Camera, Image, Sticker, Share, UserPlus, UserMinus, Save, MessageSquare, Bot, Tag } from 'lucide-react'
 import TimelineSlider from './TimelineSlider'
 import UsernameMappingModal from './UsernameMappingModal'
 import { getDisplayName, getUnknownUsersInConversation, hasUnknownUsers } from '../utils/userMappings'
@@ -12,7 +12,6 @@ interface ChatWindowProps {
   conversation: ChatMessage[];
   conversationId: string;
   friendsData: FriendsData;
-  throwbackDate: Date | null;
   usernameMappings: UsernameMappings;
   onUpdateMappings: (mappings: UsernameMappings, friendsToUpdate?: {[oldUsername: string]: string}) => void;
 }
@@ -21,7 +20,6 @@ function ChatWindow({
   conversation,
   conversationId,
   friendsData,
-  throwbackDate,
   usernameMappings,
   onUpdateMappings
 }: ChatWindowProps) {
@@ -112,14 +110,6 @@ function ChatWindow({
       }
       return true;
     });
-    
-    // Filter by throwback date
-    if (throwbackDate) {
-      messages = messages.filter(msg => {
-        const msgDate = parseISO(msg.Created.replace(' UTC', 'Z'));
-        return msgDate <= throwbackDate;
-      });
-    }
 
     // Filter by search query (debounced for performance)
     if (debouncedSearchQuery) {
@@ -136,7 +126,7 @@ function ChatWindow({
     });
 
     return messages;
-  }, [conversation, throwbackDate, debouncedSearchQuery]);
+  }, [conversation, debouncedSearchQuery]);
 
   // Group messages by date
   const groupedMessages = useMemo(() => {
@@ -254,11 +244,11 @@ function ChatWindow({
               const participantColor = getParticipantColor(msg.From);
               
               // Handle different media types
-              if (mediaType === 'STATUSERASEDSNAPMESSAGE') {
+              if (mediaType === 'STATUSERASEDSNAPMESSAGE' || mediaType === 'STATUSERASEDMESSAGE') {
                 return (
                   <div key={msg['Created(microseconds)']} className="system-message">
                     <Trash2 size={14} />
-                    <span>{isSent ? 'You' : displayName} deleted a chat</span>
+                    <span>{isSent ? 'You' : displayName} deleted a {mediaType === 'STATUSERASEDSNAPMESSAGE' ? 'snap' : 'message'}</span>
                     <span className="system-time">
                       {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
                     </span>
@@ -269,7 +259,70 @@ function ChatWindow({
               if (mediaType === 'STATUSPARTICIPANTREMOVED') {
                 return (
                   <div key={msg['Created(microseconds)']} className="system-message">
+                    <UserMinus size={14} />
                     <span>Participant removed</span>
+                    <span className="system-time">
+                      {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
+                    </span>
+                  </div>
+                );
+              }
+              
+              if (mediaType === 'STATUSPARTICIPANTJOINED') {
+                return (
+                  <div key={msg['Created(microseconds)']} className="system-message">
+                    <UserPlus size={14} />
+                    <span>{isSent ? 'You' : displayName} joined the chat</span>
+                    <span className="system-time">
+                      {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
+                    </span>
+                  </div>
+                );
+              }
+              
+              if (mediaType === 'STATUSCONVERSATIONCAPTURESCREENSHOT') {
+                return (
+                  <div key={msg['Created(microseconds)']} className="system-message screenshot">
+                    <Camera size={14} />
+                    <span>{isSent ? 'You' : displayName} took a screenshot</span>
+                    <span className="system-time">
+                      {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
+                    </span>
+                  </div>
+                );
+              }
+              
+              if (mediaType === 'STATUSSAVETOCAMERAROLL') {
+                return (
+                  <div key={msg['Created(microseconds)']} className="system-message">
+                    <Save size={14} />
+                    <span>{isSent ? 'You' : displayName} saved to camera roll</span>
+                    <span className="system-time">
+                      {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
+                    </span>
+                  </div>
+                );
+              }
+              
+              if (mediaType === 'STATUSMESSAGESAVED' || mediaType === 'STATUSMESSAGESCREENSHOTTED') {
+                const action = mediaType === 'STATUSMESSAGESAVED' ? 'saved' : 'screenshotted';
+                const icon = mediaType === 'STATUSMESSAGESAVED' ? <Save size={14} /> : <Camera size={14} />;
+                return (
+                  <div key={msg['Created(microseconds)']} className={`system-message ${mediaType === 'STATUSMESSAGESCREENSHOTTED' ? 'screenshot' : ''}`}>
+                    {icon}
+                    <span>{isSent ? 'You' : displayName} {action} a message</span>
+                    <span className="system-time">
+                      {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
+                    </span>
+                  </div>
+                );
+              }
+              
+              if (mediaType === 'STATUSONGOINGCALL') {
+                return (
+                  <div key={msg['Created(microseconds)']} className="system-message ongoing-call">
+                    <Phone size={14} className="pulse" />
+                    <span>Call in progress</span>
                     <span className="system-time">
                       {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
                     </span>
@@ -297,6 +350,97 @@ function ChatWindow({
                     {callIcons[mediaType]}
                     <span>{callText}</span>
                     <span className="call-time">
+                      {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
+                    </span>
+                  </div>
+                );
+              }
+              
+              // Handle media messages
+              if (mediaType === 'MEDIA') {
+                return (
+                  <div key={msg['Created(microseconds)']} className={`media-message ${isSent ? 'sent' : 'received'}`}>
+                    <div className="media-bubble">
+                      <Image size={16} className="media-icon" />
+                      <span>Photo/Video</span>
+                    </div>
+                    <span className="media-time">
+                      {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
+                    </span>
+                  </div>
+                );
+              }
+              
+              // Handle stickers
+              if (mediaType === 'STICKER' || mediaType === 'STICKERNOTE') {
+                return (
+                  <div key={msg['Created(microseconds)']} className={`sticker-message ${isSent ? 'sent' : 'received'}`}>
+                    <div className="sticker-bubble">
+                      <Sticker size={20} className="sticker-icon" />
+                      {mediaType === 'STICKERNOTE' && msg.Content && (
+                        <span className="sticker-note">{msg.Content}</span>
+                      )}
+                    </div>
+                    <span className="sticker-time">
+                      {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
+                    </span>
+                  </div>
+                );
+              }
+              
+              // Handle shared content
+              if (mediaType === 'SHARE' || mediaType === 'SHARESAVEDSTORY') {
+                const shareType = mediaType === 'SHARESAVEDSTORY' ? 'Shared story' : 'Shared content';
+                return (
+                  <div key={msg['Created(microseconds)']} className={`share-message ${isSent ? 'sent' : 'received'}`}>
+                    <div className="share-bubble">
+                      <Share size={16} className="share-icon" />
+                      <span>{shareType}</span>
+                    </div>
+                    <span className="share-time">
+                      {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
+                    </span>
+                  </div>
+                );
+              }
+              
+              // Handle location reactions
+              if (mediaType === 'MAPREACTION') {
+                return (
+                  <div key={msg['Created(microseconds)']} className="system-message">
+                    <span>📍 {isSent ? 'You' : displayName} reacted to location</span>
+                    <span className="system-time">
+                      {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
+                    </span>
+                  </div>
+                );
+              }
+              
+              // Handle bot responses
+              if (mediaType === 'NONPARTICIPANTBOTRESPONSE') {
+                return (
+                  <div key={msg['Created(microseconds)']} className="bot-message">
+                    <div className="bot-header">
+                      <Bot size={14} />
+                      <span>Bot Response</span>
+                    </div>
+                    <div className="bot-content">
+                      {msg.Content || 'Bot message'}
+                    </div>
+                    <span className="bot-time">
+                      {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
+                    </span>
+                  </div>
+                );
+              }
+              
+              // Handle system tags
+              if (mediaType === 'PLUSSYSTEMTAG') {
+                return (
+                  <div key={msg['Created(microseconds)']} className="system-message">
+                    <Tag size={14} />
+                    <span>System tag</span>
+                    <span className="system-time">
                       {format(parseISO(msg.Created.replace(' UTC', 'Z')), 'h:mm a')}
                     </span>
                   </div>

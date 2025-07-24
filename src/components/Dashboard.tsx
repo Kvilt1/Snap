@@ -1,28 +1,17 @@
-import { MessageCircle, Search, BarChart3, Calendar, Settings, Upload } from 'lucide-react'
+import { MessageCircle, Search, BarChart3, Calendar, Settings } from 'lucide-react'
 import '../styles/Dashboard.css'
 
 interface DashboardProps {
   onNavigateToChat: () => void
-  onReuploadFiles: () => void
 }
 
-function Dashboard({ onNavigateToChat, onReuploadFiles }: DashboardProps) {
+function Dashboard({ onNavigateToChat }: DashboardProps) {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <div className="header-top">
-          <div className="header-text">
-            <h1>Snapchat Archive Dashboard</h1>
-            <p>Navigate your chat history and explore your data</p>
-          </div>
-          <button 
-            onClick={onReuploadFiles}
-            className="reupload-button"
-            title="Load different files"
-          >
-            <Upload size={16} />
-            <span>Reupload Files</span>
-          </button>
+        <div className="header-text">
+          <h1>Snapchat Archive Dashboard</h1>
+          <p>Demo viewer with sample chat history</p>
         </div>
       </div>
       
@@ -32,7 +21,7 @@ function Dashboard({ onNavigateToChat, onReuploadFiles }: DashboardProps) {
             <MessageCircle size={32} />
           </div>
           <h2>Interactive Chat Viewer</h2>
-          <p>Browse conversations, use throwback machine, and explore your chat history</p>
+          <p>Browse conversations and explore the sample chat history</p>
           <div className="card-action">Open Viewer →</div>
         </div>
         

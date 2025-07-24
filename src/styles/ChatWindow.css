@@ -371,3 +371,234 @@
   padding: 0;
   border: none;
 }
+
+/* Screenshot system messages */
+.system-message.screenshot {
+  color: #ff6b6b;
+}
+
+.system-message.screenshot svg {
+  color: #ff6b6b;
+}
+
+/* Ongoing call animation */
+.system-message.ongoing-call svg {
+  color: #4ecdc4;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Media messages (photos/videos) */
+.media-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  justify-content: center;
+}
+
+.media-bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.media-bubble:hover {
+  background-color: var(--bg-tertiary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.media-icon {
+  color: #a8e6cf;
+}
+
+.media-message.sent .media-bubble {
+  background-color: rgba(255, 71, 87, 0.1);
+  border-color: rgba(255, 71, 87, 0.3);
+}
+
+.media-message.sent .media-icon {
+  color: #ff4757;
+}
+
+.media-message.received .media-bubble {
+  background-color: rgba(52, 152, 219, 0.1);
+  border-color: rgba(52, 152, 219, 0.3);
+}
+
+.media-message.received .media-icon {
+  color: #3498db;
+}
+
+.media-time {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* Sticker messages */
+.sticker-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  justify-content: center;
+}
+
+.sticker-bubble {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sticker-bubble:hover {
+  transform: scale(1.05);
+  background-color: var(--bg-tertiary);
+}
+
+.sticker-icon {
+  color: #ffeb3b;
+}
+
+.sticker-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  max-width: 150px;
+  text-align: center;
+}
+
+.sticker-message.sent .sticker-bubble {
+  background-color: rgba(255, 71, 87, 0.1);
+  border-color: rgba(255, 71, 87, 0.3);
+}
+
+.sticker-message.received .sticker-bubble {
+  background-color: rgba(52, 152, 219, 0.1);
+  border-color: rgba(52, 152, 219, 0.3);
+}
+
+.sticker-time {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* Share messages */
+.share-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  justify-content: center;
+}
+
+.share-bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.share-bubble:hover {
+  background-color: var(--bg-tertiary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.share-icon {
+  color: #9c88ff;
+}
+
+.share-message.sent .share-bubble {
+  background-color: rgba(255, 71, 87, 0.1);
+  border-color: rgba(255, 71, 87, 0.3);
+}
+
+.share-message.sent .share-icon {
+  color: #ff4757;
+}
+
+.share-message.received .share-bubble {
+  background-color: rgba(52, 152, 219, 0.1);
+  border-color: rgba(52, 152, 219, 0.3);
+}
+
+.share-message.received .share-icon {
+  color: #3498db;
+}
+
+.share-time {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* Bot messages */
+.bot-message {
+  margin: 8px auto;
+  max-width: 80%;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  border-left: 3px solid #00d2d3;
+}
+
+.bot-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  color: #00d2d3;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.bot-content {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.bot-time {
+  display: block;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+  text-align: right;
+}

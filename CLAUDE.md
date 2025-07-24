@@ -4,124 +4,135 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Chatviewer-claude is a **read-only archive viewer** for Snapchat chat history. This is currently a greenfield project with specifications defined in `mvp.md` but no implementation yet.
+Chatviewer-claude is a **demo chat viewer** for displaying Snapchat-style chat conversations. This is a client-side only React application that uses built-in mock data to demonstrate the chat viewing interface.
 
-## Core Features to Implement
+## Tech Stack
 
-1. **Chat Viewer** - Main interface for viewing archived conversations
-2. **Throwback Machine** - Time travel feature to view chats as they appeared on specific dates
-3. **Chat Timeline Slider** - Visual navigation for long chat histories
-4. **Dual Search** - In-chat and global search functionality
+- **Framework**: React 19.1.0 with TypeScript
+- **Build Tool**: Vite 7.0.0
+- **Styling**: Component-specific CSS files (no CSS-in-JS)
+- **Icons**: Lucide React
+- **Date Handling**: date-fns 4.1.0
+- **Deployment**: Netlify with SPA configuration
 
-## Expected Data Structure
+## Development Commands
 
-The application will process exported Snapchat JSON files:
-- `chat_history.json` - Core message data
-- `friends.json` - Friend list with display names
-- `account.json` - User account information
-- `account_history.json` - Historical profile data
+```bash
+npm install          # Install dependencies
+npm run dev          # Start dev server on http://localhost:3000
+npm run build        # TypeScript check + production build
+npm run preview      # Preview production build
+npm run lint         # TypeScript type checking (no emit)
+```
 
-## Architecture Considerations
+## Project Structure
 
-When implementing this project, consider:
+```
+src/
+├── components/        # React components
+│   ├── ChatWindow.tsx
+│   ├── ConversationList.tsx
+│   ├── Dashboard.tsx
+│   ├── TimelineSlider.tsx
+│   └── UsernameMappingModal.tsx
+├── data/             # Mock data
+│   └── mockData.ts
+├── hooks/            # Custom React hooks
+│   └── useDebouncedValue.ts
+├── styles/           # Component-specific CSS files
+├── types/            # TypeScript type definitions
+│   └── snapchat.ts
+├── utils/            # Utility functions
+│   ├── searchIndex.ts
+│   └── userMappings.ts
+├── App.tsx           # Main application component
+└── main.tsx          # Entry point
+```
 
-1. **Frontend-Only Application** - No backend requirements specified
-2. **JSON Processing** - Need efficient parsing and filtering of potentially large JSON files
-3. **Date-Based Filtering** - Critical for Throwback Machine feature
-4. **Search Indexing** - Required for dual search functionality
-5. **Dark Theme UI** - Should match Snapchat's native appearance
+## Core Features
 
-## Development Setup
+1. **Chat Viewer** - Main interface for viewing chat conversations
+   - Two-column layout: conversation list sidebar + main chat area
+   - Auto-scroll to latest messages when opening conversation
+   
+2. **Chat Timeline Slider** - Visual navigation for long chat histories
+   - Positioned at top or bottom of screen
+   - Updates message view in real-time
 
-The project is now built with React + TypeScript + Vite. To get started:
+3. **Dual Search** - In-chat and global search functionality
+   - **In-chat**: Real-time filtering within current conversation
+   - **Global**: Searches all conversations, displays clickable message list
 
-1. Install dependencies: `npm install`
-2. Start development server: `npm run dev`
-3. Build for production: `npm run build`
-4. Preview production build: `npm run preview`
+## Mock Data Structure
 
-Sample JSON files are available in the `/data` directory for testing.
+The application uses pre-built mock data (found in `src/data/mockData.ts`) that includes:
+- Sample individual conversations
+- A group chat example
+- Various message types (text, calls, system messages)
+- Sample friends data with display names
+- Mock account information
 
-## Key Implementation Notes
+## Message Handling
 
-- This is a **read-only viewer** - no interactive messaging features
-- Display names from `friends.json` should replace usernames throughout the UI
-- The Throwback Machine requires filtering all data to show historical state
-- Search should work both within individual chats and globally across all conversations
-- Consider performance implications when handling large chat histories
-
-### Message Type Handling
-
-The application filters and displays different Snapchat message types as follows:
-
-**Hidden Types** (not displayed):
+### Hidden Message Types
 - `MEDIA`, `STATUS`, `STICKER`
 - Empty `TEXT` messages
 
-**Special Display Types**:
-- `STATUSERASEDSNAPMESSAGE` → "User deleted a chat" (system message style)
-- `STATUSPARTICIPANTREMOVED` → "Participant removed" (system message style)
-- `STATUSCALLENDEDAUDIO` → Phone icon + "Voice call ended"
-- `STATUSCALLENDEDVIDEO` → Video icon + "Video call ended" 
-- `STATUSCALLMISSEDAUDIO` → Phone-off icon + "Missed voice call"
-- `STATUSCALLMISSEDVIDEO` → Video-off icon + "Missed video call"
+### Special Display Types
+- `STATUSERASEDSNAPMESSAGE` → "User deleted a chat" (system style)
+- `STATUSPARTICIPANTREMOVED` → "Participant removed" (system style)
+- `STATUSCALLENDEDAUDIO` → 📞 "Voice call ended"
+- `STATUSCALLENDEDVIDEO` → 📹 "Video call ended"
+- `STATUSCALLMISSEDAUDIO` → 📵 "Missed voice call"
+- `STATUSCALLMISSEDVIDEO` → 📹 "Missed video call"
 - `TEXT` → Display content only if not empty
 
-### Group Chat Support
+## Group Chat Support
 
-The application automatically detects and handles group chats:
-
-**Detection**: Group chats are identified by:
+### Detection
 - Non-null `Conversation Title` field
 - UUID keys instead of usernames
 - Multiple unique participants in message history
 
-**Features**:
-- Group chat names display the `Conversation Title`
-- Participant count shown in conversation list (👥 4) and chat header
-- Sender names displayed above each received message in group chats
-- Visual distinction with group chat styling
-- **Color-coded message bubbles**: Each participant gets a unique color in group chats
-- **Message grouping**: Consecutive messages from same user show username only once
+### Features
+- Display `Conversation Title` as chat name
+- Show participant count (👥 4) in list and header
+- Color-coded messages per participant (15 color palette)
+- Sender names above messages (grouped for consecutive messages)
+- Continuous colored bars for visual message grouping
 
-### Message Layout & Colors
+## Message Design
 
-**Design**: Clean, minimal layout inspired by modern chat interfaces
-- Left-aligned sender names with participant colors
-- **Continuous colored bars** for visual message grouping
-- Timestamps displayed in HH.mm format on the right
-- No background bubbles for cleaner appearance
+### Individual Chats
+- **"Me" messages**: Red (#ff4757) with "Me" label
+- **Friend messages**: Blue (#3498db) with friend's display name
+- Consecutive messages show continuous colored bar
+- Timestamps in HH.mm format on right
 
-**Individual Chats**: Clean two-person conversation layout
-- **"Me" messages**: Red color (#ff4757) with "Me" as sender name  
-- **Friend messages**: Bright blue color (#3498db) with friend's display name
-- **High contrast**: Red vs blue provides clear visual distinction between speakers
-- **Message grouping**: Consecutive messages from same person hide redundant names
-- **Continuous bars**: Multiple consecutive messages appear as one unbroken colored bar
-- **Visual consistency**: Same colored bar system as group chats
-
-**Group Chats**: Multi-participant color-coded hierarchy
-- **Sender names**: Colored by participant (consistent throughout conversation)
-- **Continuous colored bars**: 3px wide bars that extend across grouped messages
-- **"Me" messages**: Red color (#ff4757) with "Me" as sender name
-- **Received messages**: Unique color per participant (15 color palette)
-- **Message grouping**: Consecutive messages from same user hide redundant names
-- **Visual flow**: Unbroken colored bars clearly show message threads from each participant
+### Group Chats
+- Each participant gets unique color (consistent throughout chat)
+- 3px colored bars extend across grouped messages
+- "Me" always red (#ff4757)
+- Sender names colored to match message bar
 
 ### Message Ordering
+- **Chat Messages**: Chronological (oldest top, newest bottom)
+- **Conversation List**: By latest message date (newest first)
 
-**Chat Messages**: Displayed chronologically (oldest at top, newest at bottom)
-- Auto-scrolls to latest messages when opening a conversation
-- Timeline slider allows navigation through message history
+## Username Mapping
 
-**Conversation List**: Sorted by latest message date (most recent conversations first)
-- Consistent filtering applied to determine actual last visible message
-- Honors throwback date filtering for historical views
+The app supports manual username mapping stored in localStorage. Users can map unknown usernames to display names through the UI.
 
-## Testing Approach
+## TypeScript Configuration
 
-When tests are implemented:
-- Unit test JSON parsing and filtering logic
-- Test date-based filtering for Throwback Machine
-- Test search functionality with various edge cases
-- UI component testing for chat bubbles and navigation
+- Strict mode enabled
+- Bundler module resolution
+- ES2020 target
+- Path aliases configured (@/ for src/)
+
+## Deployment
+
+- Configured for Netlify with netlify.toml
+- SPA routing enabled
+- Security headers configured
+- Client-side only - no environment variables needed
